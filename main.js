@@ -7,6 +7,15 @@ pack = data => d3.pack()
     .sum(d => d.value)
     .sort((a, b) => b.value - a.value))
 
+d3.csv("CancerByAge.csv").then(function(data) {
+    var nestedData = d3.nest()
+    .key(function(d) { return d.Age; })
+    .key(function(d) { return d.Race; })
+    .key(function(d) { return d.Sex; })
+    .rollup(function(v) { return d3.mean(v, function(d) { return d.Rate; }) })
+    .object(data);
+    console.log(nestedData);
+});
 
 d3.json("flare-2.json").then(function(data) {
     console.log(data);
