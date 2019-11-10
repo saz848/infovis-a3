@@ -7,13 +7,17 @@ pack = data => d3.pack()
     .sum(d => d.value)
     .sort((a, b) => b.value - a.value))
 
-d3.csv("CancerByAge.csv").then(function(data) {
+// Order in which we nest is dependent on the order of these functions in the array
+nestingOrder = [function(d) {return d.Race;}, function(d) {return d.Sex;}, function(d) {return d.Age;}];
+
+parsedData = d3.csv("CancerByAge.csv").then(function(data) {
     var nestedData = d3.nest()
-    .key(function(d) { return d.Age; })
-    .key(function(d) { return d.Race; })
-    .key(function(d) { return d.Sex; })
+    .key(nestingOrder[0])
+    .key(nestingOrder[1])
+    .key(nestingOrder[2])
     .rollup(function(v) { return d3.mean(v, function(d) { return d.Rate; }) })
-    .object(data);
+    .entries(data).map(function(group){ return {name: group.key, children: group.values}});
+  return nestedData;
     console.log(nestedData);
 });
 
