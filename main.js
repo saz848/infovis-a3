@@ -1,3 +1,5 @@
+function createVis()
+{
 var height = 932;
 var width = 932;
 pack = data => d3.pack()
@@ -8,16 +10,27 @@ pack = data => d3.pack()
     .sort((a, b) => b.value - a.value))
 
 // Order in which we nest is dependent on the order of these functions in the array
-nestingOrder = [function(d) {return d.Race;}, function(d) {return d.Sex;}, function(d) {return d.Age;}];
+nestingOrder = [[function(d) {return d.Race;}, function(d) {return d.Sex;}, function(d) {return d.Age;}],
+                [function(d) {return d.Sex;}, function(d) {return d.Race;}, function(d) {return d.Age;}],
+                [function(d) {return d.Age;}, function(d) {return d.Race;}, function(d) {return d.Sex;}]];
 
 labelFunction1 = function(group) {if (typeof group.values !== 'undefined'){ return{name: group.key, children: group.values}}else{return {name: group.key, value: group.value}}};
 labelFunction = function(group) { return {name: group.key, children: group.values.map(labelFunction1)}};
 
+var choice = document.getElementById("nestChoice").value;
+console.log(choice);
+var i = 0;
+if (choice === "Race"){
+  i = 0;
+}else{
+  i = (choice === "Sex") ? 1 : 2;
+}
+
 parsedData = d3.csv("CancerByAge.csv").then(function(data) {
     var nestedData = d3.nest()
-    .key(nestingOrder[0])
-    .key(nestingOrder[1])
-    .key(nestingOrder[2])
+    .key(nestingOrder[i][0])
+    .key(nestingOrder[i][1])
+    .key(nestingOrder[i][2])
     .rollup(function(v) { return Math.ceil(d3.mean(v, function(d) { return d.Rate; })) })
     .entries(data).map(function(group){ return {name: group.key, children: group.values.map(labelFunction)}});
 
@@ -35,6 +48,7 @@ parsedData = d3.csv("CancerByAge.csv").then(function(data) {
         .interpolate(d3.interpolateHcl)
         
     const svg = d3.select(".svg-wrapper").append("svg")
+      .attr("id", "currSVG")
       .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
       .style("display", "block")
       .style("margin", "0 -14px")
@@ -96,10 +110,17 @@ parsedData = d3.csv("CancerByAge.csv").then(function(data) {
             .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
     }
 
+    svg.exit().remove();
 });
 
 
 
+}
 
+function updateVis(){
+  d3.selectAll("svg > *").remove();
+  createVis();
+  d3.select("#currSVG").remove();
+}
 
-
+createVis();
