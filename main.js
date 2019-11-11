@@ -49,12 +49,15 @@ parsedData = d3.csv("CancerByAge.csv").then(function(data) {
         
     const svg = d3.select(".svg-wrapper").append("svg")
       .attr("id", "currSVG")
-      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
+      .attr("width", width/1.4)
+      .attr("height", height/1.4)
+      .attr("viewBox", `-${width/2} -${height/2} ${width} ${height}`)
       .style("display", "block")
-      .style("margin", "0 -14px")
+      .style("margin", "0 auto")
       .style("background", color(0))
       .style("cursor", "pointer")
       .on("click", () => zoom(root));
+
 
     const node = svg.append("g")
       .selectAll("circle")
